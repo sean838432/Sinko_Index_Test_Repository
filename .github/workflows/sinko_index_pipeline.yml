@@ -24,10 +24,10 @@ jobs:
           pip install pandas numpy
 
       - name: Run Data Download Script
-        run: python download_kcar.py
+        run: python sinko_index_data_download.py
 
       - name: Run Sinko Index Calculation Script
-        run: python compute_rh.py
+        run: python sinko_index_algorithm_run.py
 
       - name: Commit and Push Generated CSVs
         run: |
