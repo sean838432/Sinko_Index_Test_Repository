@@ -45,10 +45,3 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add sinko_index_output_data.csv
           git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update computed Sinko Index output data [skip ci]" && git push)
-
-      - name: Commit and Push Generated CSVs
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add kcar_recent_obs.csv kcar_recent_obs_with_rh.csv
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update KCAR weather data [skip ci]" && git push)
