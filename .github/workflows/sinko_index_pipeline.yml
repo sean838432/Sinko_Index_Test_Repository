@@ -5,6 +5,9 @@ on:
     types: [gcp-cron, run-kcar-pipeline] # Triggered by Google Cloud Scheduler webhook
   workflow_dispatch: # Retained for manual testing in the GitHub UI
 
+permissions:
+  contents: write
+
 jobs:
   run-scripts:
     runs-on: ubuntu-latest
