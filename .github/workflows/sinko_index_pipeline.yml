@@ -26,8 +26,22 @@ jobs:
       - name: Run Data Download Script
         run: python sinko_index_data_download.py
 
+      - name: Commit and Push Input Data CSV to Repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add sinko_index_input_data.csv
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update downloaded Sinko Index input data [skip ci]" && git push)
+
       - name: Run Sinko Index Calculation Script
         run: python sinko_index_algorithm_run.py
+
+      - name: Commit and Push Output Sinko Index Data CSV to Repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add sinko_index_output_data.csv
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update computed Sinko Index output data [skip ci]" && git push)
 
       - name: Commit and Push Generated CSVs
         run: |
