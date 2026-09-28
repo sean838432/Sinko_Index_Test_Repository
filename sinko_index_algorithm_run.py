@@ -22,7 +22,7 @@ def calculate_rh(temp_f, dew_f):
 
 
 # Read the IEM observation CSV
-df = pd.read_csv("sinko_index_data.csv")
+df = pd.read_csv("sinko_index_input_data.csv")
 
 # Convert temperature and dewpoint to numeric types, coercing invalid strings (e.g. 'M') to NaN
 df["tmpf"] = pd.to_numeric(df["tmpf"], errors="coerce")
