@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  run-scripts:
+  run-sinko-index-pipeline:
     runs-on: ubuntu-latest
 
     steps:
