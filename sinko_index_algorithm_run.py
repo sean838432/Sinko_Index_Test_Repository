@@ -22,7 +22,11 @@ def calculate_rh(temp_f, dew_f):
 
 
 # Read the IEM observation CSV
-df = pd.read_csv("sinko_index_input_data.csv")
+df = pd.read_csv("sinko_index_data.csv")
+
+# Convert temperature and dewpoint to numeric types, coercing invalid strings (e.g. 'M') to NaN
+df["tmpf"] = pd.to_numeric(df["tmpf"], errors="coerce")
+df["dwpf"] = pd.to_numeric(df["dwpf"], errors="coerce")
 
 # Clean out rows missing temperature or dewpoint observations
 df = df.dropna(subset=["tmpf", "dwpf"]).copy()
@@ -31,7 +35,7 @@ df = df.dropna(subset=["tmpf", "dwpf"]).copy()
 df["rh"] = calculate_rh(df["tmpf"], df["dwpf"]).round(0).astype(int)
 
 # Save output to CSV
-output_file = "sinko_index_output_data.csv"
+output_file = "sinko_index_output.csv"
 df.to_csv(output_file, index=False)
 
 print(f"Calculated RH for {len(df)} rows and saved to {output_file}:")
