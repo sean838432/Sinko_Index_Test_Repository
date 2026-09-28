@@ -22,7 +22,7 @@ def calculate_rh(temp_f, dew_f):
 
 
 # Read the IEM observation CSV
-df = pd.read_csv("kcar_recent_obs.csv")
+df = pd.read_csv("sinko_index_data.csv")
 
 # Clean out rows missing temperature or dewpoint observations
 df = df.dropna(subset=["tmpf", "dwpf"]).copy()
