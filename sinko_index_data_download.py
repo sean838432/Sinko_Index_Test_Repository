@@ -21,7 +21,7 @@ url = (
 df = pd.read_csv(url)
 
 # Save to local CSV file
-output_file = "sinko_index_data.csv"
+output_file = "sinko_index_input_data.csv"
 df.to_csv(output_file, index=False)
 
 print(f"Saved {len(df)} rows to {output_file}")
