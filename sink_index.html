@@ -1,1 +1,136 @@
-<! Example code for a webpage displaying Sinko Index data
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KCAR Weather Observations</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6 md:p-12">
+
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <header class="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">KCAR Observations</h1>
+        <p class="text-sm text-slate-400">Caribou, ME — Recent Temperature, Dewpoint & Relative Humidity</p>
+      </div>
+      <div id="latest-time" class="text-xs font-mono text-indigo-400 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+        Loading timestamp...
+      </div>
+    </header>
+
+    <!-- Stat Cards (Latest Obs) -->
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700/60 shadow-lg">
+        <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Temperature</span>
+        <span id="latest-temp" class="text-3xl font-black text-white mt-1 block">--.-°F</span>
+      </div>
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700/60 shadow-lg">
+        <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Dewpoint</span>
+        <span id="latest-dew" class="text-3xl font-black text-indigo-400 mt-1 block">--.-°F</span>
+      </div>
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700/60 shadow-lg">
+        <span class="block text-xs font-bold uppercase tracking-wider text-slate-400">Relative Humidity</span>
+        <span id="latest-rh" class="text-3xl font-black text-emerald-400 mt-1 block">--%</span>
+      </div>
+    </section>
+
+    <!-- Error Banner -->
+    <div id="error-msg" class="hidden p-4 bg-rose-950/50 border border-rose-800 text-rose-300 text-sm rounded-xl"></div>
+
+    <!-- Observations Table -->
+    <section class="bg-slate-800 rounded-xl border border-slate-700/60 overflow-hidden shadow-lg">
+      <div class="px-5 py-3 bg-slate-950/40 border-b border-slate-700/60 font-extrabold text-sm text-slate-300 tracking-wide">
+        Recent Observations
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-900/60 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-700/40">
+            <tr>
+              <th class="px-5 py-3">Valid Time (UTC)</th>
+              <th class="px-5 py-3">Temp (°F)</th>
+              <th class="px-5 py-3">Dewpoint (°F)</th>
+              <th class="px-5 py-3">RH (%)</th>
+            </tr>
+          </thead>
+          <tbody id="obs-table-body" class="divide-y divide-slate-700/30 font-mono">
+            <tr>
+              <td colspan="4" class="px-5 py-6 text-center text-slate-500 italic">Fetching data from CSV...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    async function fetchObservations() {
+      const errorEl = document.getElementById('error-msg');
+      try {
+        const res = await fetch('./kcar_recent_obs_with_rh.csv', { cache: 'no-store' });
+        if (!res.ok) throw new Error("Unable to fetch 'kcar_recent_obs_with_rh.csv'");
+
+        const text = await res.text();
+        const lines = text.trim().split('\n').filter(Boolean);
+        if (lines.length < 2) throw new Error("CSV dataset is empty or corrupted");
+
+        const headers = parseCSVLine(lines[0]);
+        const idxValid = headers.indexOf('valid');
+        const idxTmpf  = headers.indexOf('tmpf');
+        const idxDwpf  = headers.indexOf('dwpf');
+        const idxRh    = headers.indexOf('rh');
+
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          const col = parseCSVLine(lines[i]);
+          rows.push({
+            valid: col[idxValid] || '--',
+            temp: parseFloat(col[idxTmpf]),
+            dew: parseFloat(col[idxDwpf]),
+            rh: parseInt(col[idxRh])
+          });
+        }
+
+        // Sort descending (most recent first)
+        rows.sort((a, b) => b.valid.localeCompare(a.valid));
+
+        // Update Top Summary Cards with latest observation
+        const latest = rows[0];
+        document.getElementById('latest-time').innerText = `Valid: ${latest.valid} UTC`;
+        document.getElementById('latest-temp').innerText = isNaN(latest.temp) ? '--' : `${latest.temp.toFixed(1)}°F`;
+        document.getElementById('latest-dew').innerText  = isNaN(latest.dew)  ? '--' : `${latest.dew.toFixed(1)}°F`;
+        document.getElementById('latest-rh').innerText   = isNaN(latest.rh)   ? '--' : `${latest.rh}%`;
+
+        // Populate Observation Table Rows
+        const tbody = document.getElementById('obs-table-body');
+        tbody.innerHTML = rows.map(r => `
+          <tr class="hover:bg-slate-700/30 transition-colors">
+            <td class="px-5 py-2.5 text-slate-300">${r.valid}</td>
+            <td class="px-5 py-2.5 font-bold text-white">${isNaN(r.temp) ? '--' : r.temp.toFixed(1)}</td>
+            <td class="px-5 py-2.5 font-bold text-indigo-400">${isNaN(r.dew) ? '--' : r.dew.toFixed(1)}</td>
+            <td class="px-5 py-2.5 font-bold text-emerald-400">${isNaN(r.rh) ? '--' : r.rh}%</td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        errorEl.innerText = `Error: ${err.message}`;
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    function parseCSVLine(line) {
+      let arr = [], quote = false, str = '';
+      for (let ch of line) {
+        if (ch === '"') quote = !quote;
+        else if (ch === ',' && !quote) { arr.push(str.trim()); str = ''; }
+        else str += ch;
+      }
+      arr.push(str.trim());
+      return arr;
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchObservations);
+  </script>
+</body>
+</html>
