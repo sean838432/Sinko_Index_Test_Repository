@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KCAR Weather Observations</title>
+  <title>Sinko Index Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6 md:p-12">
@@ -13,7 +13,6 @@
     <header class="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
       <div>
         <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">KCAR Observations</h1>
-        <p class="text-sm text-slate-400">Caribou, ME — Recent Temperature, Dewpoint & Relative Humidity</p>
       </div>
       <div id="latest-time" class="text-xs font-mono text-indigo-400 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
         Loading timestamp...
@@ -68,8 +67,8 @@
     async function fetchObservations() {
       const errorEl = document.getElementById('error-msg');
       try {
-        const res = await fetch('./kcar_recent_obs_with_rh.csv', { cache: 'no-store' });
-        if (!res.ok) throw new Error("Unable to fetch 'kcar_recent_obs_with_rh.csv'");
+        const res = await fetch('./sinko_index_output_data.csv', { cache: 'no-store' });
+        if (!res.ok) throw new Error("Unable to fetch 'sinko_index_output_data.csv'");
 
         const text = await res.text();
         const lines = text.trim().split('\n').filter(Boolean);
