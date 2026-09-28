@@ -35,7 +35,7 @@ df = df.dropna(subset=["tmpf", "dwpf"]).copy()
 df["rh"] = calculate_rh(df["tmpf"], df["dwpf"]).round(0).astype(int)
 
 # Save output to CSV
-output_file = "sinko_index_output.csv"
+output_file = "sinko_index_output_data.csv"
 df.to_csv(output_file, index=False)
 
 print(f"Calculated RH for {len(df)} rows and saved to {output_file}:")
